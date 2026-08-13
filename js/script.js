@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let participants = [];
     let isSpinning = false;
     let spinInterval = null;
-    let isFirstDraw = true; // Flag para controlar o primeiro giro
-    const specialName = '@leh_assalin'; // Nome especial que deve cair no primeiro giro
 
     // ========== FUNÇÕES ==========
 
@@ -60,9 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
         textarea.value = '';
         textarea.focus();
         resetWinnerDisplay();
-        
-        // Reset da flag de primeiro giro ao carregar novos nomes
-        isFirstDraw = true;
     }
 
     // Renderiza a lista de participantes
@@ -71,52 +66,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         participants.forEach((name, index) => {
             const li = document.createElement('li');
-            
-            // Destaca o nome especial na lista
-            if (name.toLowerCase() === specialName.toLowerCase()) {
-                li.style.borderColor = '#f39c12';
-                li.style.background = 'rgba(230, 126, 34, 0.15)';
-                li.style.fontWeight = '700';
-                
-                // Adiciona um ícone especial
-                const nameSpan = document.createElement('span');
-                nameSpan.textContent = name;
-                nameSpan.style.display = 'flex';
-                nameSpan.style.alignItems = 'center';
-                nameSpan.style.gap = '0.5rem';
-                
-                const starIcon = document.createElement('span');
-                starIcon.textContent = '⭐';
-                starIcon.style.fontSize = '0.9rem';
-                nameSpan.appendChild(starIcon);
-                
-                li.appendChild(nameSpan);
-                
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-btn';
-                removeBtn.innerHTML = '✕';
-                removeBtn.setAttribute('aria-label', 'Remover participante');
-                removeBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (isSpinning) return;
-                    removeParticipant(index);
-                });
-                li.appendChild(removeBtn);
-            } else {
-                li.textContent = name;
-                
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-btn';
-                removeBtn.innerHTML = '✕';
-                removeBtn.setAttribute('aria-label', 'Remover participante');
-                removeBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (isSpinning) return;
-                    removeParticipant(index);
-                });
-                li.appendChild(removeBtn);
-            }
+            li.textContent = name;
 
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '✕';
+            removeBtn.setAttribute('aria-label', 'Remover participante');
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (isSpinning) return;
+                removeParticipant(index);
+            });
+
+            li.appendChild(removeBtn);
             participantListEl.appendChild(li);
         });
 
@@ -164,16 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Verifica se é o primeiro giro e se o nome especial está na lista
-        let forceWinner = null;
-        if (isFirstDraw) {
-            const specialIndex = participants.findIndex(p => p.toLowerCase() === specialName.toLowerCase());
-            if (specialIndex !== -1) {
-                forceWinner = participants[specialIndex];
-            }
-            // Se o nome especial não estiver na lista, faz sorteio normal
-        }
-
         // Desabilita botões durante a animação
         isSpinning = true;
         drawBtn.disabled = true;
@@ -189,96 +141,45 @@ document.addEventListener('DOMContentLoaded', () => {
         winnerLabel.className = 'winner-label spinning';
         winnerBadge.className = 'winner-badge spinning';
 
-        // Se tem um vencedor forçado (primeiro giro com @leh_assalin)
-        if (forceWinner) {
-            // Animação curta com o nome especial
-            let speed = 50;
-            let totalTime = 0;
-            const maxDuration = 1500 + Math.random() * 1000; // 1.5-2.5 segundos
+        // Velocidade inicial (rápida)
+        let speed = 50; // milissegundos
+        let totalTime = 0;
+        const maxDuration = 3000 + Math.random() * 2000; // entre 3 e 5 segundos
 
-            function spinStep() {
-                if (participants.length === 0) {
-                    stopRoulette();
-                    return;
-                }
-
-                // Mostra nomes aleatórios durante a animação
-                const randomIndex = Math.floor(Math.random() * participants.length);
-                winnerNameEl.textContent = participants[randomIndex];
-                winnerNameEl.className = 'winner-name rolling';
-
-                totalTime += speed;
-
-                if (totalTime < maxDuration * 0.7) {
-                    // Fase rápida
-                    speed += 5 + Math.random() * 10;
-                    spinInterval = setTimeout(spinStep, speed);
-                } else if (totalTime < maxDuration) {
-                    // Desacelera
-                    speed += 20 + Math.random() * 30;
-                    spinInterval = setTimeout(spinStep, speed);
-                } else {
-                    // Para no nome especial
-                    winnerNameEl.textContent = forceWinner;
-                    winnerNameEl.className = 'winner-name winner-reveal';
-                    
-                    // Atualiza UI
-                    winnerLabel.textContent = '🏆 VENCEDOR!';
-                    winnerLabel.className = 'winner-label';
-                    winnerBadge.className = 'winner-badge';
-                    winnerCard.classList.remove('spinning');
-
-                    // Reabilita botões
-                    isSpinning = false;
-                    drawBtn.disabled = false;
-                    loadBtn.disabled = false;
-                    resetBtn.disabled = false;
-                    
-                    // Marca que o primeiro giro já foi feito
-                    isFirstDraw = false;
-                    
-                    // Limpa o timeout
-                    if (spinInterval) {
-                        clearTimeout(spinInterval);
-                        spinInterval = null;
-                    }
-                }
+        // Função que troca o nome rapidamente
+        function spinStep() {
+            if (participants.length === 0) {
+                stopRoulette();
+                return;
             }
 
-            spinInterval = setTimeout(spinStep, speed);
-        } else {
-            // Sorteio normal (aleatório) - mesmo código da versão anterior
-            let speed = 50;
-            let totalTime = 0;
-            const maxDuration = 3000 + Math.random() * 2000; // entre 3 e 5 segundos
+            // Pega um nome aleatório
+            const randomIndex = Math.floor(Math.random() * participants.length);
+            winnerNameEl.textContent = participants[randomIndex];
+            winnerNameEl.className = 'winner-name rolling';
 
-            function spinStep() {
-                if (participants.length === 0) {
-                    stopRoulette();
-                    return;
-                }
+            totalTime += speed;
 
-                const randomIndex = Math.floor(Math.random() * participants.length);
-                winnerNameEl.textContent = participants[randomIndex];
-                winnerNameEl.className = 'winner-name rolling';
-
-                totalTime += speed;
-
-                if (totalTime < maxDuration * 0.6) {
-                    spinInterval = setTimeout(spinStep, speed);
-                } else if (totalTime < maxDuration * 0.85) {
-                    speed += 15 + Math.random() * 20;
-                    spinInterval = setTimeout(spinStep, speed);
-                } else if (totalTime < maxDuration) {
-                    speed += 30 + Math.random() * 40;
-                    spinInterval = setTimeout(spinStep, speed);
-                } else {
-                    stopRoulette();
-                }
+            // Aumenta gradualmente o intervalo (desaceleração)
+            if (totalTime < maxDuration * 0.6) {
+                // Fase 1: mantém velocidade
+                spinInterval = setTimeout(spinStep, speed);
+            } else if (totalTime < maxDuration * 0.85) {
+                // Fase 2: começa a desacelerar
+                speed += 15 + Math.random() * 20;
+                spinInterval = setTimeout(spinStep, speed);
+            } else if (totalTime < maxDuration) {
+                // Fase 3: desaceleração forte
+                speed += 30 + Math.random() * 40;
+                spinInterval = setTimeout(spinStep, speed);
+            } else {
+                // Para a roleta
+                stopRoulette();
             }
-
-            spinInterval = setTimeout(spinStep, speed);
         }
+
+        // Inicia a roleta
+        spinInterval = setTimeout(spinStep, speed);
     }
 
     function stopRoulette() {
@@ -288,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
             spinInterval = null;
         }
 
-        // Escolhe o vencedor final (aleatório)
+        // Escolhe o vencedor final
         const winnerIndex = Math.floor(Math.random() * participants.length);
         const winner = participants[winnerIndex];
         winnerNameEl.textContent = winner;
@@ -305,11 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
         drawBtn.disabled = false;
         loadBtn.disabled = false;
         resetBtn.disabled = false;
-        
-        // Marca que o primeiro giro já foi feito (se ainda não tiver sido marcado)
-        if (isFirstDraw) {
-            isFirstDraw = false;
-        }
     }
 
     // ========== RESET COMPLETO ==========
@@ -333,7 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
         textarea.focus();
         resetWinnerDisplay();
         isSpinning = false;
-        isFirstDraw = true; // Reseta a flag para o próximo carregamento
 
         // Reabilita botões
         drawBtn.disabled = true;
