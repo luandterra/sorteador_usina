@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>🍺 Usina do Malte · Roleta</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <div class="app-container">
+        <!-- cabeçalho -->
+        <header class="header">
+            <div class="logo-area">
+                <span class="logo-icon">🍺</span>
+                <h1 class="brand">Usina do Malte</h1>
+            </div>
+            <span class="subtitle">ROULETTE</span>
+        </header>
+
+        <main class="sorteio-area">
+            <!-- card do vencedor com animação de roleta -->
+            <section class="winner-card" id="winnerCard">
+                <div class="winner-frame">
+                    <span class="winner-label" id="statusLabel">🎰 SORTEANDO...</span>
+                    <div class="winner-name" id="winnerName">—</div>
+                    <div class="winner-badge" id="winnerBadge">🎲</div>
+                </div>
+            </section>
+
+            <!-- área de participantes com caixa de texto única -->
+            <section class="participants-section">
+                <div class="section-header">
+                    <h2>👥 Participantes</h2>
+                    <span class="count-badge" id="participantCount">0</span>
+                </div>
+
+                <!-- CAIXA DE TEXTO ÚNICA -->
+                <div class="input-group">
+                    <textarea 
+                        id="participantTextarea" 
+                        placeholder="Digite os nomes separados por vírgula, espaço ou quebra de linha&#10;Ex: Ana, Carlos, Daniel, Fernanda" 
+                        rows="4"
+                    ></textarea>
+                </div>
+
+                <!-- botões de ação -->
+                <div class="actions-row">
+                    <button id="loadBtn" class="btn btn-primary">📥 Carregar nomes</button>
+                    <button id="drawBtn" class="btn btn-draw">🎰 Girar Roleta</button>
+                    <button id="resetBtn" class="btn btn-outline">🔄 Resetar</button>
+                </div>
+
+                <!-- lista com scroll dos participantes carregados -->
+                <div class="list-wrapper">
+                    <ul id="participantList" class="participant-list"></ul>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>© 2026 · Usina do Malte · sorteio com emoção de roleta 🎰</p>
+        </footer>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
